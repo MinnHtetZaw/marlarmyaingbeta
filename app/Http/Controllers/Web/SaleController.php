@@ -86,7 +86,7 @@ class SaleController extends Controller
         }
         $froms=From::find($item_from);
         $items = $froms->items()->with('category')->with('counting_units')->with("counting_units.stockcount")->with('sub_category')->get();
-        return respone()->json($items);
+        return response()->json($items);
     }
 
     protected function getVucherPage(Request $request){
@@ -436,12 +436,13 @@ class SaleController extends Controller
         $date = new DateTime('Asia/Yangon');
 
         $current_date = strtotime($date->format('Y-m-d'));
-        $to = $date->format('Y-m-d');
+        $fromdate=$date->format('Y-m-d');
+        $todate = $date->format('Y-m-d');
 
         $weekly = date('Y-m-d', strtotime('-1week', $current_date));
 
 
-            $weekly_data = Voucher::where('type', 1)->where('from_id',$item_from)->whereBetween('voucher_date', [$weekly,$to])->get();
+            $weekly_data = Voucher::where('type', 1)->where('from_id',$item_from)->whereBetween('voucher_date', [$weekly,$todate])->get();
 
         $weekly_sales = 0;
 
@@ -496,7 +497,7 @@ class SaleController extends Controller
         }
 
         $search_sales = 0;
-        return view('Sale.sale_history_page',compact('search_sales','voucher_lists','total_sales','daily_sales','monthly_sales','weekly_sales'));
+        return view('Sale.sale_history_page',compact('search_sales','voucher_lists','total_sales','daily_sales','monthly_sales','weekly_sales','todate','fromdate'));
     }
     protected function show_discount_list()
     {
@@ -599,7 +600,7 @@ class SaleController extends Controller
         $discount_main = DiscountMain::all();
         $all = 2;
 
-        return view('Sale.sale_discount_record_list',compact('discounts','discount_main','all','between'));
+        return view('Sale.sale_discount_record_list',compact('discounts','discount_maifromn','all','between'));
 
     }
     protected function searchSaleHistory(Request $request){
@@ -676,8 +677,11 @@ class SaleController extends Controller
         $date = new DateTime('Asia/Yangon');
 
         $current_date = strtotime($date->format('Y-m-d'));
+
         $to = $date->format('Y-m-d');
 
+        $fromdate=$request->from;
+        $todate =$request->to;
 
         $weekly = date('Y-m-d', strtotime('-1week', $current_date));
 
@@ -738,7 +742,7 @@ class SaleController extends Controller
             }
         }
 
-        return view('Sale.sale_history_page',compact('voucher_lists','total_sales','daily_sales','monthly_sales','weekly_sales','search_sales'));
+        return view('Sale.sale_history_page',compact('voucher_lists','total_sales','daily_sales','monthly_sales','weekly_sales','search_sales','todate','fromdate'));
 
     }
 

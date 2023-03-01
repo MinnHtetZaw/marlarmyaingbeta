@@ -420,6 +420,7 @@
 
 
     }
+    
 function showdue(){
     var amt = $('#dueamt').val();
     var pay = $('#payamt').val();

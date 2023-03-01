@@ -45,6 +45,7 @@ use Maatwebsite\Excel\Excel;
 use App\Exports\ExpenseHistoryExport;
 use App\Exports\IncomeHistoryExport;
 use App\Exports\PayableHistoryExport;
+use App\Exports\WelldoneHistoryExport;
 
 class AdminController extends Controller {
 
@@ -316,6 +317,8 @@ class AdminController extends Controller {
                  $paycredit_amount += $pay_credit->pay_amount;
              }
 
+            //  $paydate = SupplierPayCredit::where('purchase_id',$purchase->id)->where('paid_status',1)->first();
+
                  $credit_purchase = [
                     'purchase_id' =>$purchase->id,
                     'purchase_vou' => $purchase->purchase_vou,
@@ -326,19 +329,72 @@ class AdminController extends Controller {
                     'total_amount' => $purchase->total_price,
                     'credit_amount' => $purchase->credit_amount,
                     'paycredit_amount' => $paycredit_amount,
-                    'remaincredit_amount' => $remaincredit_amount
+                    'remaincredit_amount' => $remaincredit_amount,
+
                 ];
                 array_push($credit_purchases,$credit_purchase);
              }
          }
      }
 
+     $paycredit= SupplierPayCredit::whereBetween('pay_date',[$current_Date,$current_Date])->where('left_amount',0)->get();
+
+
+     $pays =[];
+     foreach ($paycredit as $paycredits){
+        $purchase = Purchase::where('id',$paycredits->purchase_id)->first();
+        $paydate = SupplierPayCredit::where('purchase_id',$paycredits->purchase_id)->where('left_amount',0)->first();
+
+        $pay=[
+            'purchase_vou'=> $purchase->purchase_vou,
+            'purchase_date'=>$purchase->purchase_date,
+            'supplier_name'=>$purchase->supplier_name,
+            'total_amount'=>$purchase->total_price,
+            'credit_amount'=>$purchase->credit_amount,
+            'remain_credit'=>$paycredits->left_amount,
+            'pay_date'=>$paydate->pay_date,
+        ];
+        array_push($pays,$pay);
+     }
+
      //$customers = OrderCustomer::all();
      $suppliers = Supplier::all();
-     $supplier_credit = Supplier::where('id',$purchase->supplier_id)->get();
+     $paypay = SupplierPayCredit::all();
 
-     return view('Admin.receivable_payable',compact('credit_purchases','current_Date','suppliers','name','supplier_credit'));
+     return view('Admin.receivable_payable',compact('credit_purchases','current_Date','suppliers','name','pays','purchases','paypay'));
  }
+
+ protected function search_welldone(Request $request){
+
+    if($request->value == 0){
+        $supplier_id= Supplier::get()->pluck('id')->toArray();
+    }else{
+        $supplier_id= array($request->value);
+    }
+    $pays =[];
+
+    $paycredit= SupplierPayCredit::whereIn('supplier_id',$supplier_id)->whereBetween('pay_date',[$request->from,$request->to])->where('left_amount',0)->get();
+    foreach ($paycredit as $paycredits){
+        $purchase = Purchase::where('id',$paycredits->purchase_id)->first();
+        $paydate = SupplierPayCredit::where('purchase_id',$paycredits->purchase_id)->where('left_amount',0)->first();
+
+        $pay=[
+            'purchase_vou'=> $purchase->purchase_vou,
+            'purchase_date'=>$purchase->purchase_date,
+            'supplier_name'=>$purchase->supplier_name,
+            'total_amount'=>$purchase->total_price,
+            'credit_amount'=>$purchase->credit_amount,
+            'remain_credit'=>$paycredits->left_amount,
+            'pay_date'=>$paydate->pay_date,
+        ];
+        array_push($pays,$pay);
+     }
+     return response()->json($pays);
+ }
+
+ protected function welldoneHistoryExport(Request $request,$from,$to,$id){
+    return $this->excel->download(new WelldoneHistoryExport($from,$to,$id),'Welldone_history.xlsx');
+}
 
  protected function payableHistoryExport(Request $request,$from,$to,$id){
     return $this->excel->download(new PayableHistoryExport($from,$to,$id),'Outstanding_history.xlsx');
@@ -354,6 +410,8 @@ class AdminController extends Controller {
         }else{
             $supplier_id= array($request->value);
         }
+
+
 
         $purchases = Purchase::whereIn('supplier_id',$supplier_id)->whereBetween('purchase_date', [$request->from,$request->to])->get();
         if($purchases != null){
@@ -710,24 +768,8 @@ class AdminController extends Controller {
 
     public function store_eachPaidSupplier(Request $request)
     {
+
         // dd($request->all());
-        // $validator = Validator::make($request->all(), [
-        //     'name' => 'required',
-        //     'email' => 'required|unique:App\User,email',
-        //     'password' => 'required',
-        //     'phone' => 'required',
-        //     'role' => 'required',
-        // ]);
-
-        // if ($validator->fails()) {
-
-        //     alert()->error("Something Wrong! Validation Error");
-
-        //     return redirect()->back();
-        // }
-
-
-
         $sale_customer = Supplier::find($request->supid);
 
         $credit_list = SupplierCreditlist::where('purchase_id',$request->purchase_id)->first();
@@ -790,6 +832,7 @@ class AdminController extends Controller {
         $paypay = SupplierPayCredit::where('supplier_id',$request->supid)->get();
 
         return back()->with(compact('paypay','supplier','creditlist','credit'));
+        // return back()->with(compact(''))
 
     }
 

@@ -63,6 +63,7 @@
 
                                             <div class="card-header">
                                                 <div class="row mt-3">
+
             @csrf
             <div class="col-md-2">
                 <label class="control-label font-weight-bold">From Date</label>
@@ -74,10 +75,12 @@
             </div>
 
             <div class="col-md-2">
-                <label class="control-label font-weight-bold">Customers</label>
-                <select class="form-control" id="customer_select" onChange="setRCustomer(this.value)">
+                <label class="control-label font-weight-bold">Suppliers</label>
+                <select class="form-control" id="select_supplier" onChange="setRCustomer(this.value)" >
                     <option value="0">All</option>
-
+                    @foreach ($suppliers as $supplier)
+                        <option value="{{$supplier->id}}">{{ $supplier->name }}</option>
+                    @endforeach
                 </select>
             </div>
 
@@ -87,7 +90,7 @@
             <div class="col-md-1 m-t-30 ml-1">
                 <button class="btn btn-success px-4" id="receive_print" onclick="receive_print()">Print</button>
             </div>
-
+        </form>
             <div class="col-md-1 mt-4">
 
              <form id="exportRForm" onsubmit="return exportRForm()" method="get">
@@ -135,43 +138,48 @@
         <div class="col-md-6 ml-3" id="rdate_area">
             <p class="font-weight-bold mt-2" style="font-size: 20px" id="rreport_date">Report Date: {{$current_Date}} </p>
         </div>
+
                      <div class="table-responsive text-black" id="slimtest2">
                                 <table class="table" id="order_table">
                                     <thead class="head">
                                         <tr class="text-center">
                                             <th>@lang('lang.number')</th>
 
-                                            <th>Order No.</th>
-                                            <th>Order Date</th>
-                                            <th>Status</th>
-                                            <th>Customer Name</th>
-                                            <th>Customer Phone</th>
+                                            <th>Purchase Voucher</th>
+                                            <th>Purchase Date</th>
+                                            <th>Supplier Name</th>
                                             <th>Total Amount</th>
-                                            <th>Advance Payment</th>
-                                            <th>Oustanding</th>
+                                            <th>Repayment</th>
+                                            <th>Repay Date</th>
+                                            <th>Remain Credit</th>
 
-                                            <th class="text-center rdetails">@lang('lang.details')</th>
+
                                             {{-- <th class="text-center">@lang('lang.action')</th> --}}
                                         </tr>
                                     </thead>
                                     <tbody id="order_list" class="body">
                                         <?php
                                         $i = 1;
-                                        $order_total = 0;
-                                        $receivable_total = 0;
-                                        ?>
 
-                                        <tr>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td class="text-info">Order Total</td>
-                                <td class="text-right font-bold">{{$order_total}}</td>
-                                <td class="text-info">Receivable Total</td>
-                                <td class="text-right font-bold">{{$receivable_total}}</td>
-                            </tr>
+                                        ?>
+                                            @foreach ($pays as $pay)
+
+                                            <tr class="text-center">
+                                                <td>{{ $i++ }}</td>
+
+                                                <td>{{$pay['purchase_vou'] }}</td>
+                                                <td>{{$pay['purchase_date'] }}</td>
+                                                <td>{{$pay['supplier_name']}}</td>
+                                                <td>{{$pay['total_amount']}}</td>
+                                                <td>{{$pay['credit_amount']}}</td>
+                                                <td>{{$pay['pay_date'] }}</td>
+                                                <td>{{$pay['remain_credit']}}</td>
+
+
+                                            </tr>
+
+                                        @endforeach
+
 
                                     </tbody>
                                 </table>
@@ -217,7 +225,7 @@
                 <select class="form-control" id="supplier_select" onChange="setPCustomer(this.value)">
                     <option value="0">All</option>
                     @foreach ($suppliers as $supplier)
-                        <option value="{{$supplier->id}}">{{ $supplier->name  }}</option>
+                        <option value="{{$supplier->id}}">{{ $supplier->name }}</option>
                     @endforeach
                 </select>
             </div>
@@ -275,77 +283,91 @@
             <p class="font-weight-bold mt-2" style="font-size: 20px" id="preport_date">Report Date: {{$current_Date}} </p>
         </div>
 
-        {{-- <div class="table-responsive text-black">
-            {{-- <table class="table">
-                {{-- <thead class="head ">
-                        <tr class="text-center">
-                            <th>@lang('lang.number')</th>
-
-                            <th></th>
-                            <th>Supplier Name</th>
-                            <th></th>
-
-                            <th >Remaining Credit</th>
-                            <th></th>
-                            <th></th>
-                            <th class="text-center pdetails">Action</th>
-                            <th></th>
-
-
-
-
-                        </tr>
-                </thead> --}}
-                {{-- <tbody class="body">
+        <div class="table-responsive text-black">
+            <table class="table">
+                <thead class="head">
+                    <tr class="text-center">
+                        <th>@lang('lang.number')</th>
+                        <th>Purchase Voucher</th>
+                        <th>Purchase Date</th>
+                        <th>Supplier Name</th>
+                        <th>Total Amount</th>
+                        <th>Remain Credit</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody class="body" >
                     <?php
                     $i = 1;
                     ?>
-                    @foreach ($supplier_credit as $supplier )
-                        @if($supplier['credit_amount'] != 0)
-                        <tr class="text-center  ">
-                            <td>{{ $i++ }}</td>
-                            <td></td>
-                            <td>{{$supplier['name']}}</td>
-                            <td></td>
+                    @foreach ($credit_purchases as $purchase)
+                        @if($purchase['remaincredit_amount'] != 0)
+                        <tr class="text-center">
+                            <td>{{ $i++}}</td>
 
-                            <td >{{$supplier['credit_amount']}}</td>
-                            <td></td>
-                            <td></td>
-                            <td>
-                                <a class="btn btn-primary" data-toggle="collapse" href="#totoalcredit{{$supplier->id}}" role="button" aria-expanded="false" aria-controls="multiCollapseExample1">Credit List</a>
+                            <td>{{$purchase['purchase_vou'] }}</td>
+                            <td>{{$purchase['purchase_date'] }}</td>
+                            <td>{{$purchase['supplier_name']}}</td>
+                            <td>{{$purchase['total_amount']}}</td>
+                            <td>{{$purchase['remaincredit_amount']}}</td>
+
+                           <td>
+                            <a class="btn btn-primary" data-toggle="collapse" href="#creditlist{{$purchase['purchase_id']}}" role="button" aria-expanded="false" aria-controls="creditlist">
+                                Related
+                            </a>
+                            <td class="text-center pdetails">
+                            <a href="" class="btn btn-sm btn-outline-info"  data-target="#PayRemainCredit{{$purchase['purchase_id']}}" data-toggle="modal">Repay</a>
                             </td>
-                            <td></td>
 
-
-
+                           </td>
 
                         </tr>
 
-                       <thead class="">
-                        <tr class="collapse out" style="background-color:wheat" id="totoalcredit{{$supplier->id}}">
-                            <td>@lang('lang.number')</td>
+                    <tr>
+                        <td colspan="9">
+                            <div class="collapse  table-responsive " id="creditlist{{$purchase['purchase_id']}}">
+                                <table style="background-color: rgb(240, 231, 231)" class="table">
+                                    <thead>
+                                        <tr class="text-center ">
+                                            <th>@lang('lang.number')</th>
 
-                            <td>Purchase No.</td>
-                            <td>Purchase Date</td>
-                            <td>Supplier Name</td>
+                                            <th>Repayment Date</th>
+                                            <th>Repay Amount</th>
+                                            <th>Remaining Credit</th>
+                                            <th>Description</th>
 
-                            <td>Total Amount</td>
-                            <td>Credit Amount</td>
-                            <td>Repayment</td>
-                            <td>Remaining Credit</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="collapseCredit" class="purchase_list">
+                                        <?php
+                                        $j = 1;
+                                        ?>
+                                        @foreach ($paypay as $pays)
 
-                            <td class="text-center pdetails">@lang('lang.details')</td>
-                        </tr>
+                                            @if($pays['purchase_id'] == $purchase['purchase_id'] )
+                                            <tr class="text-center">
+                                                <td>{{$j++ }}</td>
 
-                       </thead>
+                                                <td>{{$pays['pay_date'] }}</td>
+                                                <td>{{$pays['pay_amount']}}</td>
+                                                <td>{{$pays['left_amount']}}</td>
+                                                <td>{{$pays['description']}}</td>
 
-                        @endif
+                                            </tr>
+
+                                            @endif
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        </td>
+                    </tr>
+                    @endif
                     @endforeach
+                </tbody>
 
-                </tbody> --}}
-            {{-- </table> --}}
-
-        {{-- </div> --}}
+            </table>
+        </div>
 
         <div class="table-responsive text-black" id="slimtest2">
             <table class="table" id="purchase_table">
@@ -362,12 +384,12 @@
                         <th>Repayment</th>
                         <th>Remaining Credit</th>
 
-                        <th class="text-center pdetails">@lang('lang.details')</th>
+                        <th class="mx-auto pdetails">Action</th>
 
-                        {{-- <th class="text-center">@lang('lang.action')</th> --}}
+
                     </tr>
                 </thead>
-                <tbody id="purchase_list" class="body">
+                <tbody id="" class="body purchase_list">
                     <?php
                     $i = 1;
                     $purchase_total = 0;
@@ -396,10 +418,7 @@
                                     href="{{ route('purchase_details', $purchase['purchase_id']) }}"
                                     class="btn btn-sm btn-outline-info">Details</a>
                             </td>
-                            {{-- <td class="text-center pdetails"><a
-                                href=""
-                                class="btn btn-sm btn-outline-info" onchange="myForm('{{ $purchase['purchase_id'] }}','{{ $purchase['remaincredit_amount'] }}', '{{ $purchase['supplier_id'] }}')" data-target="#PayCreditDetail{{$purchase['purchase_id']}}" data-toggle="modal">Credits</a>
-                        </td> --}}
+
                          <td class="text-center pdetails"><a
                             href="{{ route('supcredit', $purchase['supplier_id']) }}"
                             class="btn btn-sm btn-outline-info">Credits</a>
@@ -446,8 +465,11 @@
 
 
     </section>
-    {{-- @foreach ($credit_purchases as $purchase)
-    <div class="modal fade bd-example-modal-lg" id="PayCreditDetail{{$purchase['purchase_id']}}" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+
+         @foreach ($credit_purchases as $purchase)
+         <form action="{{route('store_each_paid_supplier')}}" method="POST">
+            @csrf
+    <div class="modal fade bd-example-modal-lg" id="PayRemainCredit{{$purchase['purchase_id']}}" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header bg-info">
@@ -459,16 +481,16 @@
                             <div class="col-10 offset-1 mb-1">
                                 <label class="focus-label">Purchase ID</label>
 
-                                <input type="text" class="form-control" name="vouid" id="vouid" disabled>
-                                <input type="hidden" class="form-control" name="purchase_id" id="vou_id">
+                                <input type="text" class="form-control" name="vouid" value="{{$purchase['purchase_vou']}}" disabled>
+                                <input type="hidden" class="form-control" name="purchase_id" value="{{$purchase['purchase_id']}}">
                             </div>
                         </div>
                         <div class="row">
                             <div class="col-10 offset-1 mb-1">
                                 <label class="focus-label">Due Amount</label>
 
-                                <input type="text" class="form-control" name="dueamt" id="dueamt" readonly>
-                                <input type="hidden" class="form-control" name="due_amt" id="due_amt">
+                                <input type="text" class="form-control" name="dueamt" id="dueamt" value="{{$purchase['remaincredit_amount']}}" readonly>
+                                <input type="hidden" class="form-control" name="due_amt" id="due_amt" value="{{$purchase['remaincredit_amount']}}">
                             </div>
                         </div>
                             <div class="row">
@@ -477,15 +499,16 @@
 
                                 <input type="text" class="form-control" name="payamt" id="payamt" onkeyup="showdue()">
 
-                                <input type="hidden" name="total" id="total" value="{{$supplier->credit_amount}}">
-                                <input type="hidden" name="supid" id="supid" value="">
+                                {{-- <input type="hidden" name="total" id="total" value="{{$supplier->credit_amount}}"> --}}
+                                <input type="hidden" name="supid" id="supid" value="{{$purchase['supplier_id']}}">
                             </div>
                              </div>
+
                              <div class="row">
                             <div class="col-10 offset-1 mb-1">
                                 <label class="focus-label">Pay Date:</label>
                                 <br>
-                                     <input type="date" name="paydate" class="form-control" id="paydate">
+                                <input type="date" name="paydate" class="form-control" id="paydate">
                             </div>
                             <div class="col-10 offset-1 mb-1">
                                 <label class="focus-label">Pay Description:</label>
@@ -493,20 +516,19 @@
                                 <textarea id="dest" name="dest" class="md-textarea form-control" rows="3"></textarea>
                             </div>
                             <div class="col-10 offset-1 mb-1">
-                                <button type="button" class="btn btn-outline-danger d-flex text-right" data-toggle="modal" data-target="#myModal">Pay</button>
+                                <button type="submit" class="btn btn-outline-danger d-flex text-right">Pay</button>
                             </div>
                         </div>
                         </div>
-                        <!-- <hr> -->
-                        {{-- <div id="purchase_place{{$credits->id}}">
 
-                        </div> --}}
                     </div>
                 </div>
-            {{-- </div>
+           </div>
         </div>
+    </form>
 
-        @endforeach --}}
+        @endforeach
+
 
 @endsection
 
@@ -541,19 +563,10 @@
 	    $('#pexport_customer').val(0);
         });
 
-        // function myForm(Vouid,remain,supid){
-        //     $('#vouid').val(Vouid);
-        //     $('#vou_id').val(Vouid);
 
-        //     $('#supid').val(supid);
-
-        //     $('#due_amt').val(remain);
-        //     $('#dueamt').val(remain);
-
-        // }
-        // function showdue(){
-        //     $('#dueamt').val($('#due_amt').val()-$('#payamt').val());
-        // }
+        function showdue(){
+            $('#dueamt').val($('#due_amt').val()-$('#payamt').val());
+        }
 
     function setRFrom(value){
         $("#exportRForm :input[name=rexport_from]").val(value);
@@ -581,7 +594,7 @@
         //     method: "get"
         // }).then(()=>{console.log('Export Success');})
         // .catch((err)=>{console.log(err);});
-         let url = `/export-receivehistory/${from}/${to}/${id}`;
+         let url = `/export-welldoneHistory/${from}/${to}/${id}`;
          window.location.href= url;
          const today = new Date();
          var dd = today.getDate();
@@ -841,9 +854,9 @@
                             </tr>
                     `;
 
-                    $('#purchase_list').empty();
-                        $('#purchase_list').html(html);
-                        $('#preport_date').text("Report Date: "+ from + " to " + to);
+                    $('.purchase_list').empty();
+                        $('.purchase_list').html(html);
+                        $('.preport_date').text("Report Date: "+ from + " to " + to);
 
 
                 } else {
@@ -854,14 +867,161 @@
                     </tr>
 
                     `;
-                    $('#purchase_list').empty();
-                    $('#purchase_list').html(html);
+                    $('.purchase_list').empty();
+                    $('.purchase_list').html(html);
 
                 }
             },
             });
+        });
+
+        $('#receive_search_orders').click(function(){
+
+var value = $('#select_supplier').val();
+var from = $('#receive_from_date').val();
+var to = $('#receive_to_date').val();
+
+console.log(from,to,value);
+$.ajax({
+
+type: 'POST',
+
+url: '{{ route('serach_welldone_history') }}',
+
+data: {
+    "_token": "{{ csrf_token() }}",
+    'to' : to,
+    "from" : from,
+    "value":value
+},
+
+success: function(data) {
+    console.log(data);
+    if (data.length >0) {
+        var html = '';
+
+        $.each(data, function(i, pays) {
+
+                html += `
+                <tr class="text-center">
+                    <td>${++i}</td>
+
+                    <td>${pays.purchase_vou ?? '-'}</td>
+                    <td>${pays.purchase_date}</td>
+                    <td>${pays.supplier_name}</td>
+
+                    <td>${pays.total_amount}</td>
+                    <td>${pays.credit_amount}</td>
+                    <td>${pays.pay_date}</td>
+                    <td>${pays.remain_credit}</td>
+
+                </tr>
+                `;
+
         })
+
+        $('#order_list').empty();
+            $('#order_list').html(html);
+            $('#rreport_date').text("Report Date: "+ from + " to " + to);
+
+
+    } else {
+        var html = `
+
+        <tr>
+            <td colspan="9" class="text-danger text-center">No Data Found</td>
+        </tr>
+
+        `;
+        $('#order_list').empty();
+        $('#order_list').html(html);
+
+    }
+},
+});
+})
+
 
     </script>
 
+
 @endsection
+
+
+{{-- <div class="table-responsive text-black" id="slimtest2">
+    <table class="table" id="purchase_table">
+        <thead class="head">
+            <tr class="text-center">
+                <th>@lang('lang.number')</th>
+
+                <th>Purchase No.</th>
+                <th>Purchase Date</th>
+                <th>Supplier Name</th>
+
+                <th>Total Amount</th>
+                <th>Credit Amount</th>
+                <th>Repayment</th>
+                <th>Remaining Credit</th>
+
+                <th class="text-center pdetails">@lang('lang.details')</th>
+
+                {{-- <th class="text-center">@lang('lang.action')</th> --}}
+            {{-- </tr>
+        </thead> --}}
+        {{-- <tbody id="" class="body purchase_list">
+            <?php
+            $i = 1;
+            $purchase_total = 0;
+            $payable_total =0;
+            ?>
+            @foreach ($credit_purchases as $purchase)
+                @if($purchase['remaincredit_amount'] != 0)
+                <tr class="text-center">
+                    <td>{{ $i++ }}</td>
+
+                    <td>{{ $purchase['purchase_vou'] }}</td>
+                    <td>{{ $purchase['purchase_date'] }}</td>
+
+                    <td>{{$purchase['supplier_name']}}</td>
+
+                    <td>{{$purchase['total_amount']}}</td>
+                    <td>{{$purchase['credit_amount']}}</td>
+                    <td>{{$purchase['paycredit_amount']}}</td>
+                    <td>{{$purchase['remaincredit_amount']}}</td>
+                    <?php
+                        $purchase_total += $purchase['total_amount'];
+                        $payable_total += $purchase['remaincredit_amount'];
+                    ?>
+
+                    <td class="text-center pdetails"><a
+                            href="{{ route('purchase_details', $purchase['purchase_id']) }}"
+                            class="btn btn-sm btn-outline-info">Details</a>
+                    </td>
+                    {{-- <td class="text-center pdetails"><a
+                        href=""
+                        class="btn btn-sm btn-outline-info" onchange="myForm('{{ $purchase['purchase_id'] }}','{{ $purchase['remaincredit_amount'] }}', '{{ $purchase['supplier_id'] }}')" data-target="#PayCreditDetail{{$purchase['purchase_id']}}" data-toggle="modal">Credits</a>
+                </td> --}}
+                 {{-- <td class="text-center pdetails"><a
+                    href="{{ route('supcredit', $purchase['supplier_id']) }}"
+                    class="btn btn-sm btn-outline-info">Credits</a>
+                 </td> --}}
+
+                {{-- </tr> --}}
+                {{-- @endif
+            @endforeach --}}
+
+            {{-- <tr>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td class="text-info">Purchase Total</td>
+    <td class="text-center font-bold">{{$purchase_total}}</td>
+    <td class="text-info">Payable Total</td>
+    <td class="text-center font-bold">{{$payable_total}}</td>
+</tr> --}}
+
+        {{-- </tbody>
+    </table>
+</div> --}}

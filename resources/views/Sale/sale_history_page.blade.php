@@ -102,14 +102,14 @@
             <div class="row">
                 <div class="col-md-2">
                     <label class="control-label font-weight-bold">@lang('lang.from')</label>
-                    <input type="date" name="from" class="form-control form-control-sm" onChange="setFrom(this.value)" required>
+                    <input type="date" name="from" class="form-control form-control-sm" value="{{$fromdate}}" onChange="setFrom(this.value)" required>
                 </div>
-                
+
                 <div class="col-md-2">
                     <label class="font-weight-bold">@lang('lang.to')</label>
-                    <input type="date" name="to" class="form-control form-control-sm" onChange="setTo(this.value)" required>
+                    <input type="date" name="to" class="form-control form-control-sm" value="{{$todate}}" onChange="setTo(this.value)" required>
                 </div>
-                
+
                 <div class="col-md-2">
                         <label class="">Customer</label>
                         <select name="customer" id="customer" class="form-control form-control-sm select2" onChange="setCustomer(this.value)">
@@ -120,7 +120,7 @@
                             @endforeach
                         </select>
                     </div>
-                    
+
                     <div class="col-md-2">
                         <label class="">Sales Person</label>
                         <select name="sales_person" id="sales_person" class="form-control form-control-sm select2" onChange="setSales(this.value)">
@@ -138,10 +138,10 @@
             </div>
         </form>
         </div>
-        
-        
+
+
         <div class="col-md-4 mt-4">
-             
+
              <form id="exportForm" onsubmit="return exportForm()" method="get">
                  <div class="row">
                 <input type="hidden" name="export_from" id="export_from" class="form-control form-control-sm hidden" required>
@@ -152,54 +152,54 @@
                      <select name="export_data_type" id="export_data_type" class="form-control form-control-sm select2" style="font-size: 12px;">
                                 <option value=1 selected>Vouchers</option>
                                 <option value=2 >Items</option>
-                        </select>  
-                    
+                        </select>
+
                 </div>
-                
+
                 <div class="col-3">
                      <select name="export_type" id="export_type" class="form-control form-control-sm select2" style="font-size: 12px;">
                                 <option value=1 selected>Excel</option>
                                 <option value=2 >PDF</option>
-                        </select>  
-                    
+                        </select>
+
                 </div>
-                
-                
+
+
                 <div class="col-6">
                 <input type="submit" class="btn btn-sm rounded btn-outline-info col-4" value=" Export ">
                 </div>
-                </div>            
-                        
+                </div>
+
             </form>
-            
-            
+
+
         </div>
 
     </div>
     <br/>
-    
-    
+
+
 
     <div class="container">
         <div class="card">
             <div class="card-body shadow">
-                
+
                 <div class="row ml-4 mt-3">
         @if ($search_sales !=0)
-        <p class="text-right font-weight-normal text-danger ml-5 mt-4 pt-2">Search Sales = <span> {{$search_sales}} ကျပ်</span></p>            
+        <p class="text-right font-weight-normal text-danger ml-5 mt-4 pt-2">Search Sales = <span> {{$search_sales}} ကျပ်</span></p>
         @endif
     </div>
-                
+
                 <div class="row">
-                    
-                    
-                    
+
+
+
                     <div class="col-md-12">
-                        
+
                         <div class="row p-2 offset-10">
-                        <input  type="text" id="table_search" placeholder="Quick Search" onkeyup="search_table()" >    
+                        <input  type="text" id="table_search" placeholder="Quick Search" onkeyup="search_table()" >
                     </div>
-                        
+
                         <div class="table-responsive text-black" id="slimtest2">
                             <table class="table" id="item_table">
                                 <thead class="head">
@@ -219,7 +219,7 @@
                                         $i = 1;
                                         $name = "Customer"
                                     ?>
-                                   @foreach($voucher_lists as $voucher) 
+                                   @foreach($voucher_lists as $voucher)
                                     <tr>
                                         <td>{{$i++}}</td>
                                         <td>{{$voucher->voucher_code}}</td>
@@ -289,16 +289,16 @@ $(document).ready(function(){
             filter = input.value.toUpperCase();
             table = document.getElementById("item_table");
             tr = table.getElementsByTagName("tr");
-            
+
             var searchColumn = [1,2,3,4,5,6];
-            
+
             for(i = 0; i < tr.length; i++){
                 if($(tr[i]).parent().attr('class') == 'head'){
                     continue;
                 }
-                
+
                 var found = false;
-                
+
                 for(var k=0; k < searchColumn.length; k++){
                     td = tr[i].getElementsByTagName("td")[searchColumn[k]];
                     if(td){
@@ -314,26 +314,26 @@ $(document).ready(function(){
                 }
             }
         }
-        
+
     function setFrom(value){
         $("#exportForm :input[name=export_from]").val(value);
     }
-    
+
      function setTo(value){
         $("#exportForm :input[name=export_to]").val(value);
     }
-    
+
      function setCustomer(value){
         $("#exportForm :input[name=export_customer]").val(value);
-        console.log($("#exportForm :input[name=export_customer]").val());
+        // console.log($("#exportForm :input[name=export_customer]").val());
     }
-    
+
     function setSales(value){
         $("#exportForm :input[name=export_sales]").val(value);
-        console.log($("#exportForm :input[name=export_sales]").val());
+        // console.log($("#exportForm :input[name=export_sales]").val());
     }
     function exportForm(){
-       
+
         //var form = document.getElementById("exportForm");
         //var data = new URLSearchParams(form).toString();
         var from = $("#exportForm :input[name=export_from]").val();
@@ -343,7 +343,7 @@ $(document).ready(function(){
         var data_type = $("#exportForm :input[name=export_data_type]").find(":selected").val();
         var type = $("#exportForm :input[name=export_type]").find(":selected").val();
         console.log(from,to,id,data_type,type,sales);
-        
+
         // fetch("http://medicalworldinvpos.kwintechnologykw09.com/Sale/Voucher/HistoryExport/${from}/${to}/${id}",{
         //     method: "get"
         // }).then(()=>{console.log('Export Success');})
@@ -366,15 +366,15 @@ $(document).ready(function(){
 	    $('#export_sales').val('All');
 	    $('#export_data_type').val(1);
 	    $("#export_type").val(1);
-        
+
         return false;
     };
-    
+
     $('#slimtest2').slimScroll({
         color: '#00f',
         height: '600px'
     });
-	
+
 </script>
 
 @endsection

@@ -172,7 +172,7 @@ Route::group(['middleware' => ['UserAuth']], function () {
 
 
     //financial
-
+    Route::get('export-welldoneHistory/{from}/{to}/{id}','Web\AdminController@welldoneHistoryExport')->name('welldonehistroyexport');
     Route::get('export-payhistory/{from}/{to}/{id}','Web\AdminController@payableHistoryExport')->name('payablehistoryexport');
     Route::get('export-expensehistory/{from}/{to}', 'Web\AdminController@expenseHistoryExport')->name('expensehistoryexport');
     Route::get('searchIncomeHistory','Web\AdminController@incomeHistoryExport')->name('incomehistoryexport');
@@ -203,6 +203,7 @@ Route::post('updateIncome/{id}', 'Web\AdminController@updateIncome')->name('upda
 Route::post('deleteIncome', 'Web\AdminController@deleteIncome')->name('delete_income');
 
     Route::get('receivable_payable', 'Web\AdminController@getReceivablePayable')->name('receivable_payable_lists');
+    Route::post('welldone/search','Web\AdminController@search_welldone')->name('serach_welldone_history');
     Route::post('payable/newsearch', 'Web\AdminController@search_payable_bydate')->name('search_payable_bydate');
 
     Route::post('getTotalSaleReport', 'Web\AdminController@getTotalSaleReport');
