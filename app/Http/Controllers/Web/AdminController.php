@@ -300,7 +300,8 @@ class AdminController extends Controller {
     //  }
 
      $purchases = Purchase::whereBetween('purchase_date',[$current_Date,$current_Date])->get();
-
+    $allcreditlist= Purchase::all();
+   $allcreditpurchase=[];
      $credit_purchases = [];
      if($purchases != null){
          foreach($purchases as $purchase){
@@ -336,7 +337,40 @@ class AdminController extends Controller {
              }
          }
      }
+     if($allcreditlist != null){
+        foreach($allcreditlist as $allpurchase){
 
+            if($allpurchase->credit_amount > 0){
+                $remaincredit_amount = 0;
+            $paycredit_amount = 0;
+            $remain_credits = SupplierCreditList::where('purchase_id',$allpurchase->id)->get();
+            foreach($remain_credits as $remain_credit){
+                $remaincredit_amount += $remain_credit->credit_amount;
+            }
+            $pay_credits = SupplierPayCredit::where('purchase_id',$allpurchase->id)->get();
+            foreach($pay_credits as $pay_credit){
+                $paycredit_amount += $pay_credit->pay_amount;
+            }
+
+           //  $paydate = SupplierPayCredit::where('purchase_id',$purchase->id)->where('paid_status',1)->first();
+
+                $allcreditpurchases = [
+                   'purchase_id' =>$allpurchase->id,
+                   'purchase_vou' => $allpurchase->purchase_vou,
+                   'purchase_date' => $allpurchase->purchase_date,
+                   'purchase_type' => $allpurchase->purchase_type,
+                   'supplier_id' => $allpurchase->supplier_id,
+                   'supplier_name' => $allpurchase->supplier_name,
+                   'total_amount' => $allpurchase->total_price,
+                   'credit_amount' => $allpurchase->credit_amount,
+                   'paycredit_amount' => $paycredit_amount,
+                   'remaincredit_amount' => $remaincredit_amount,
+
+               ];
+               array_push($allcreditpurchase,$allcreditpurchases);
+            }
+        }
+    }
      $paycredit= SupplierPayCredit::whereBetween('pay_date',[$current_Date,$current_Date])->where('left_amount',0)->get();
 
 
@@ -361,7 +395,7 @@ class AdminController extends Controller {
      $suppliers = Supplier::all();
      $paypay = SupplierPayCredit::all();
 
-     return view('Admin.receivable_payable',compact('credit_purchases','current_Date','suppliers','name','pays','purchases','paypay'));
+     return view('Admin.receivable_payable',compact('credit_purchases','current_Date','suppliers','name','pays','purchases','paypay','allcreditpurchase'));
  }
 
  protected function search_welldone(Request $request){
@@ -404,6 +438,7 @@ class AdminController extends Controller {
 
 
         $credit_purchases=[];
+        $pay=[];
 
         if($request->value==0){
             $supplier_id= Supplier::get()->pluck('id')->toArray();
@@ -414,8 +449,16 @@ class AdminController extends Controller {
 
 
         $purchases = Purchase::whereIn('supplier_id',$supplier_id)->whereBetween('purchase_date', [$request->from,$request->to])->get();
+        $paypay = SupplierPayCredit::all();
+
         if($purchases != null){
             foreach($purchases as $purchase){
+
+                // foreach($paypay as $paypays){
+
+
+                // if($purchase->id == $paypays->purchase_id){
+
 
                 if($purchase->credit_amount > 0){
                     $remaincredit_amount = 0;
@@ -431,7 +474,7 @@ class AdminController extends Controller {
                     if($remaincredit_amount !=0){
                         $credit_purchase = [
                             'purchase_id' =>$purchase->id,
-                            'purchase_code' => $purchase->purchase_number,
+                            'purchase_code' => $purchase->purchase_vou  ,
                             'purchase_date' => $purchase->purchase_date,
                             'purchase_type' => $purchase->purchase_type,
                             'supplier_id' => $purchase->supplier_id,
@@ -439,14 +482,37 @@ class AdminController extends Controller {
                             'total_amount' => $purchase->total_price,
                             'credit_amount' => $purchase->credit_amount,
                             'paycredit_amount' => $paycredit_amount,
-                            'remaincredit_amount' => $remaincredit_amount
+                            'remaincredit_amount' => $remaincredit_amount,
                             ];
                             array_push($credit_purchases,$credit_purchase);
                     }
                 }
             }
         }
-        return response()->json($credit_purchases);
+    //     }
+    // }
+
+
+
+        $paypay = SupplierPayCredit::all();
+        foreach ($paypay as $paypays){
+            $pays = [
+                'pay_id' =>$paypays->id,
+                's_id' => $paypays->supplier_id,
+                'p_id' => $paypays->purchase_id,
+                'pay_amount' => $paypays->pay_amount,
+                'left_amount' => $paypays->left_amount,
+                'description' => $paypays->description,
+                'pay_date' => $paypays->pay_date,
+                ];
+                array_push($pay,$pays);
+        }
+
+     ;
+
+        return response()->json([
+            'cpurchase' => $credit_purchases,
+            'purchase' => $pay]);
     }
 
 	protected function getEmployeeList(){
@@ -769,7 +835,7 @@ class AdminController extends Controller {
     public function store_eachPaidSupplier(Request $request)
     {
 
-        // dd($request->all());
+
         $sale_customer = Supplier::find($request->supid);
 
         $credit_list = SupplierCreditlist::where('purchase_id',$request->purchase_id)->first();

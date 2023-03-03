@@ -149,9 +149,9 @@
                                             <th>Purchase Date</th>
                                             <th>Supplier Name</th>
                                             <th>Total Amount</th>
-                                            <th>Repayment</th>
+
                                             <th>Repay Date</th>
-                                            <th>Remain Credit</th>
+
 
 
                                             {{-- <th class="text-center">@lang('lang.action')</th> --}}
@@ -171,9 +171,9 @@
                                                 <td>{{$pay['purchase_date'] }}</td>
                                                 <td>{{$pay['supplier_name']}}</td>
                                                 <td>{{$pay['total_amount']}}</td>
-                                                <td>{{$pay['credit_amount']}}</td>
+
                                                 <td>{{$pay['pay_date'] }}</td>
-                                                <td>{{$pay['remain_credit']}}</td>
+
 
 
                                             </tr>
@@ -292,11 +292,12 @@
                         <th>Purchase Date</th>
                         <th>Supplier Name</th>
                         <th>Total Amount</th>
+                        <th>Credit Amount</th>
                         <th>Remain Credit</th>
                         <th>Action</th>
                     </tr>
                 </thead>
-                <tbody class="body" >
+                <tbody class="body purchase_list" >
                     <?php
                     $i = 1;
                     ?>
@@ -309,10 +310,11 @@
                             <td>{{$purchase['purchase_date'] }}</td>
                             <td>{{$purchase['supplier_name']}}</td>
                             <td>{{$purchase['total_amount']}}</td>
+                            <td>{{$purchase['credit_amount']}}</td>
                             <td>{{$purchase['remaincredit_amount']}}</td>
 
                            <td>
-                            <a class="btn btn-primary" data-toggle="collapse" href="#creditlist{{$purchase['purchase_id']}}" role="button" aria-expanded="false" aria-controls="creditlist">
+                            <a class="mdi mdi-form-dropdown" data-toggle="collapse" href="#creditlist{{$purchase['purchase_id']}}" role="button" aria-expanded="false" aria-controls="creditlist">
                                 Related
                             </a>
                             <td class="text-center pdetails">
@@ -328,7 +330,7 @@
                             <div class="collapse  table-responsive " id="creditlist{{$purchase['purchase_id']}}">
                                 <table style="background-color: rgb(240, 231, 231)" class="table">
                                     <thead>
-                                        <tr class="text-center ">
+                                        <tr class="text-center">
                                             <th>@lang('lang.number')</th>
 
                                             <th>Repayment Date</th>
@@ -338,7 +340,7 @@
 
                                         </tr>
                                     </thead>
-                                    <tbody id="collapseCredit" class="purchase_list">
+                                    <tbody id="collapseCredit" >
                                         <?php
                                         $j = 1;
                                         ?>
@@ -369,80 +371,7 @@
             </table>
         </div>
 
-        <div class="table-responsive text-black" id="slimtest2">
-            <table class="table" id="purchase_table">
-                <thead class="head">
-                    <tr class="text-center">
-                        <th>@lang('lang.number')</th>
 
-                        <th>Purchase No.</th>
-                        <th>Purchase Date</th>
-                        <th>Supplier Name</th>
-
-                        <th>Total Amount</th>
-                        <th>Credit Amount</th>
-                        <th>Repayment</th>
-                        <th>Remaining Credit</th>
-
-                        <th class="mx-auto pdetails">Action</th>
-
-
-                    </tr>
-                </thead>
-                <tbody id="" class="body purchase_list">
-                    <?php
-                    $i = 1;
-                    $purchase_total = 0;
-                    $payable_total =0;
-                    ?>
-                    @foreach ($credit_purchases as $purchase)
-                        @if($purchase['remaincredit_amount'] != 0)
-                        <tr class="text-center">
-                            <td>{{ $i++ }}</td>
-
-                            <td>{{ $purchase['purchase_vou'] }}</td>
-                            <td>{{ $purchase['purchase_date'] }}</td>
-
-                            <td>{{$purchase['supplier_name']}}</td>
-
-                            <td>{{$purchase['total_amount']}}</td>
-                            <td>{{$purchase['credit_amount']}}</td>
-                            <td>{{$purchase['paycredit_amount']}}</td>
-                            <td>{{$purchase['remaincredit_amount']}}</td>
-                            <?php
-                                $purchase_total += $purchase['total_amount'];
-                                $payable_total += $purchase['remaincredit_amount'];
-                            ?>
-
-                            <td class="text-center pdetails"><a
-                                    href="{{ route('purchase_details', $purchase['purchase_id']) }}"
-                                    class="btn btn-sm btn-outline-info">Details</a>
-                            </td>
-
-                         <td class="text-center pdetails"><a
-                            href="{{ route('supcredit', $purchase['supplier_id']) }}"
-                            class="btn btn-sm btn-outline-info">Credits</a>
-                         </td>
-
-                        </tr>
-                        @endif
-                    @endforeach
-
-                    <tr>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td class="text-info">Purchase Total</td>
-            <td class="text-center font-bold">{{$purchase_total}}</td>
-            <td class="text-info">Payable Total</td>
-            <td class="text-center font-bold">{{$payable_total}}</td>
-        </tr>
-
-                </tbody>
-            </table>
-        </div>
     </div>
                                         </div>
                                     </div>
@@ -466,7 +395,7 @@
 
     </section>
 
-         @foreach ($credit_purchases as $purchase)
+         @foreach ($allcreditpurchase as $purchase)
          <form action="{{route('store_each_paid_supplier')}}" method="POST">
             @csrf
     <div class="modal fade bd-example-modal-lg" id="PayRemainCredit{{$purchase['purchase_id']}}" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
@@ -567,6 +496,7 @@
         function showdue(){
             $('#dueamt').val($('#due_amt').val()-$('#payamt').val());
         }
+
 
     function setRFrom(value){
         $("#exportRForm :input[name=rexport_from]").val(value);
@@ -791,68 +721,114 @@
 
             success: function(data) {
                 console.log(data);
-                if (data.length >0) {
+                console.log(data.cpurchase);
+                if (data.cpurchase.length >0) {
                     var html = '';
-                    var purchaseTotal = 0;
-                    var payableTotal = 0;
-                    var purchase_type  = '';
-                    $.each(data, function(i, purchase) {
-                       purchaseTotal += purchase.total_amount;
-                       payableTotal += purchase.remaincredit_amount;
-                       if(purchase.purchase_type == 1){
-                           purchase_type = 'Sales Products Receive';
-                       }else if(purchase.purchase_type == 2){
-                           purchase_type = 'Factory Items Purchase';
-                       }else{
-                           purchase_type = 'Factory Items Purchase';
-                       }
-                        var url1 = '{{ route('purchase_details', ':purchase_id') }}';
-                        var crediturl='{{ route('supcredit',':supplier_id') }}';
+
+                    // var purchase_type  = '';
+                    $.each(data.cpurchase, function(i, purchase) {
+
+                        var url1 = 'creditlist{{ ':purchase_id' }}';
+                        var crediturl='PayRemainCredit{{':purchase_id'}}';
 
                         url1 = url1.replace(':purchase_id', purchase.purchase_id);
-                        crediturl=crediturl.replace(':supplier_id',purchase.supplier_id);
+                        crediturl=crediturl.replace(':purchase_id',purchase.purchase_id);
+
+                        var pid='{{':purchase_id'}}';
+                            pid = pid.replace(':purchase_id', purchase.purchase_id);
 
 
-                            html += `
-                            <tr class="text-center">
-                                <td>${++i}</td>
+                             html += `
+                                <tr class="text-center">
+                                    <td>${++i}</td>
 
-                                <td>${purchase.purchase_vou ?? '-'}</td>
-                                <td>${purchase.purchase_date}</td>
-                                <td>${purchase.supplier_name}</td>
+                                    <td>${purchase.purchase_code?? '-'}</td>
+                                    <td>${purchase.purchase_date}</td>
+                                    <td>${purchase.supplier_name}</td>
 
-                                <td>${purchase.total_amount}</td>
-                                <td>${purchase.credit_amount}</td>
-                                <td>${purchase.paycredit_amount}</td>
-                                <td>${purchase.remaincredit_amount}</td>
-                                <td class="text-center pdetails"><a
-                                        href="${url1}"
-                                        class="btn btn-sm btn-outline-info">Details</a>
-                                </td>
-                                <td class="text-center pdetails"><a
-                                        href="${crediturl}"
-                                        class="btn btn-sm btn-outline-info">Credits</a>
-                                </td>
+                                    <td>${purchase.total_amount}</td>
+                                    <td>${purchase.credit_amount}</td>
 
-                            </tr>
-                            `;
+                                    <td>${purchase.remaincredit_amount}</td>
+                                    <td>
+                                     <a class="mdi mdi-form-dropdown" data-toggle="collapse" href="#${url1}" role="button" aria-expanded="false" aria-controls="creditlist">
+                                             Related
+                                    </a>
+                                    </td>
+                                    <td class="text-center pdetails">
+                                    <a href="" class="btn btn-sm btn-outline-info"  data-target="#${crediturl}" data-toggle="modal">Repay</a>
+                                    </td>
 
-                    })
+                                </tr>
+                                <tr>
+                        <td colspan="9">
+                            <div class="collapse  table-responsive " id="${url1}">
+                                <table style="background-color: rgb(240, 231, 231)" class="table">
+                                    <thead>
+                                        <tr class="text-center">
+                                            <th>@lang('lang.number')</th>
+
+                                            <th>Repayment Date</th>
+                                            <th>Repay Amount</th>
+                                            <th>Remaining Credit</th>
+                                            <th>Description</th>
+
+                                        </tr>
+                                    </thead>`;
 
 
-                    html+=`
-                    <tr>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td class="text-info">Purchase Total</td>
-                                <td class="text-right font-bold">${purchaseTotal}</td>
-                                <td class="text-info">Payable Total</td>
-                                <td class="text-right font-bold">${payableTotal}</td>
-                            </tr>
-                    `;
+                                        $.each(data.purchase, function(j, pay){
+                                            if(pay.p_id == purchase.purchase_id ){
+
+                                                    html+=`
+                                                    <tbody id="" >
+                                                    <tr class="text-center">
+                                                        <td>${++j}</td>
+
+                                                        <td>${pay.pay_date }</td>
+                                                        <td>${pay.pay_amount}</td>
+                                                        <td>${pay.left_amount}</td>
+                                                        <td>${pay.description}</td>
+
+                                                    </tr> `;
+}
+                                         })
+
+
+                                    html +=  `</tbody>
+                                </table>
+                            </div>
+                        </td>
+                    </tr>
+                                `;
+
+                        })
+                    //    purchaseTotal += purchase.total_amount;
+                    //    payableTotal += purchase.remaincredit_amount;
+
+                    //    if(purchase.purchase_type == 1){
+                    //        purchase_type = 'Sales Products Receive';
+                    //    }else if(purchase.purchase_type == 2){
+                    //        purchase_type = 'Factory Items Purchase';
+                    //    }else{
+                    //        purchase_type = 'Factory Items Purchase';
+                    //    }
+
+
+
+                    // html+=`
+                    // <tr>
+                    //             <td></td>
+                    //             <td></td>
+                    //             <td></td>
+                    //             <td></td>
+                    //             <td></td>
+                    //             <td class="text-info">Purchase Total</td>
+                    //             <td class="text-right font-bold">${purchaseTotal}</td>
+                    //             <td class="text-info">Payable Total</td>
+                    //             <td class="text-right font-bold">${payableTotal}</td>
+                    //         </tr>
+                    // `;
 
                     $('.purchase_list').empty();
                         $('.purchase_list').html(html);
