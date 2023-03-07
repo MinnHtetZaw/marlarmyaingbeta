@@ -294,7 +294,7 @@
                         <th>Total Amount</th>
                         <th>Credit Amount</th>
                         <th>Remain Credit</th>
-
+                        <th></th>
                         <th>Action</th>
                     </tr>
                 </thead>
@@ -319,9 +319,9 @@
                                 class="btn btn-sm btn-outline-info">Details</a>
                              </td>
                            <td>
-                           <i class="fa fa-money" aria-hidden="true"><a class="fa fa-money" data-toggle="collapse" href="#creditlist{{$purchase['purchase_id']}}" role="button" aria-expanded="false" aria-controls="creditlist">
-                            re
-                            </a></i>
+                           <a class="" data-toggle="collapse" href="#creditlist{{$purchase['purchase_id']}}" role="button" aria-expanded="false" aria-controls="creditlist">
+                            Related
+                            </a>
                             <td class="text-center pdetails">
                             <a href="" class="btn btn-sm btn-outline-info"  data-target="#PayRemainCredit{{$purchase['purchase_id']}}" data-toggle="modal">Repay</a>
                             </td>
@@ -331,7 +331,7 @@
                         </tr>
 
                     <tr>
-                        <td colspan="9">
+                        <td colspan="10">
                             <div class="collapse  table-responsive " id="creditlist{{$purchase['purchase_id']}}">
                                 <table style="background-color: rgb(240, 231, 231)" class="table">
                                     <thead>
@@ -762,9 +762,9 @@
                                           class="btn btn-sm btn-outline-info">Details</a>
                                       </td>
                                     <td>
-                                    <i class="fa fa-money"><a class="" data-toggle="collapse" href="#${url1}" role="button" aria-expanded="false" aria-controls="creditlist">
-                                        re
-                                    </a></i>
+                                    <a class="" data-toggle="collapse" href="#${url1}" role="button" aria-expanded="false" aria-controls="creditlist">
+                                        Related
+                                    </a>
                                     </td>
                                     <td class="text-center pdetails">
                                     <a href="" class="btn btn-sm btn-outline-info"  data-target="#${crediturl}" data-toggle="modal">Repay</a>
@@ -772,7 +772,7 @@
 
                                 </tr>
                                 <tr>
-                        <td colspan="9">
+                        <td colspan="10">
                             <div class="collapse  table-responsive " id="${url1}">
                                 <table style="background-color: rgb(240, 231, 231)" class="table">
                                     <thead>
