@@ -285,8 +285,8 @@
 
         <div class="table-responsive text-black">
             <table class="table">
-                <thead class="head">
-                    <tr class="text-center">
+                <thead class="head text-center">
+                    <tr>
                         <th>@lang('lang.number')</th>
                         <th>Purchase Voucher</th>
                         <th>Purchase Date</th>
@@ -294,6 +294,7 @@
                         <th>Total Amount</th>
                         <th>Credit Amount</th>
                         <th>Remain Credit</th>
+
                         <th>Action</th>
                     </tr>
                 </thead>
@@ -313,10 +314,14 @@
                             <td>{{$purchase['credit_amount']}}</td>
                             <td>{{$purchase['remaincredit_amount']}}</td>
 
+                            <td class="text-center pdetails"><a
+                                href="{{ route('purchase_details', $purchase['purchase_id']) }}"
+                                class="btn btn-sm btn-outline-info">Details</a>
+                             </td>
                            <td>
-                            <a class="mdi mdi-form-dropdown" data-toggle="collapse" href="#creditlist{{$purchase['purchase_id']}}" role="button" aria-expanded="false" aria-controls="creditlist">
-                                Related
-                            </a>
+                           <i class="fa fa-money" aria-hidden="true"><a class="fa fa-money" data-toggle="collapse" href="#creditlist{{$purchase['purchase_id']}}" role="button" aria-expanded="false" aria-controls="creditlist">
+                            re
+                            </a></i>
                             <td class="text-center pdetails">
                             <a href="" class="btn btn-sm btn-outline-info"  data-target="#PayRemainCredit{{$purchase['purchase_id']}}" data-toggle="modal">Repay</a>
                             </td>
@@ -737,6 +742,8 @@
                         var pid='{{':purchase_id'}}';
                             pid = pid.replace(':purchase_id', purchase.purchase_id);
 
+                        var url2 ='{{ route('purchase_details', ':purchase_id') }}';
+                            url2 = url2.replace(':purchase_id', purchase.purchase_id);
 
                              html += `
                                 <tr class="text-center">
@@ -750,10 +757,14 @@
                                     <td>${purchase.credit_amount}</td>
 
                                     <td>${purchase.remaincredit_amount}</td>
+                                    <td class="text-center pdetails"><a
+                                             href="${url2}"
+                                          class="btn btn-sm btn-outline-info">Details</a>
+                                      </td>
                                     <td>
-                                     <a class="mdi mdi-form-dropdown" data-toggle="collapse" href="#${url1}" role="button" aria-expanded="false" aria-controls="creditlist">
-                                             Related
-                                    </a>
+                                    <i class="fa fa-money"><a class="" data-toggle="collapse" href="#${url1}" role="button" aria-expanded="false" aria-controls="creditlist">
+                                        re
+                                    </a></i>
                                     </td>
                                     <td class="text-center pdetails">
                                     <a href="" class="btn btn-sm btn-outline-info"  data-target="#${crediturl}" data-toggle="modal">Repay</a>
